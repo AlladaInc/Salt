@@ -1,0 +1,3 @@
+[submodule "libs/pql"]
+	path = libs/pql
+	url = https://github.com/AlladaInc/PseudoQL.git
