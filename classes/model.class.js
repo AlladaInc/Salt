@@ -1,4 +1,8 @@
 import { DATATYPES } from 'datatypes';
+import { PQL } from 'pql';
+import { APP } from 'app';
+import { EVENT } from 'event';
+
 let INDEX_TYPE = Object.freeze({
     HASH:       1,
     BTREE:      2,
@@ -10,7 +14,9 @@ let RELATION_TYPES = Object.freeze({
     MANY_TO_ONE:    3,
 });
 
-export default class MODEL {
+let models_are_loaded = false;
+
+class MODEL {
     static get DATA_TYPES () { return DATATYPES; }
     //static set DATA_TYPES (v) {}
 
@@ -59,4 +65,21 @@ export default class MODEL {
     static query ({query, variables}) {
         
     }
+    static areModelsLoaded () {
+        return models_are_loaded;
+    }
+    static triggerModelsLoaded () {
+        models_are_loaded = true;
+        APP.triggerEvent(APP.EVENTS.MODELS_LOADED);
+    }
 }
+
+APP.registerEvent('MODELS_LOADED', true, {
+    onAddTrigger: () => {
+        if (MODELS.areModelsLoaded) {
+            
+        }
+    },
+});
+export { MODEL };
+export default MODEL;

@@ -1,0 +1,4 @@
+ERROR_EVENT_ALREADY_REGISTERED                                                  Event '%s' already registered
+ERROR_FIRST_ARGUMENT_NOT_EVENT_OBJ                                              First argument must be an instance of EVENT class type '%s' given 
+ERROR_SECOND_ARGUMENT_NOT_FUNCTION                                              Second argument must be a function type '%s' given
+ERROR_FIRST_ARGUMENT_NOT_TRIGGER                                                First argument must be on instance of TRIGGER class type '%s' given

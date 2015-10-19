@@ -1,6 +1,7 @@
 import { MODEL } from 'model';
 
 var config = MODEL.makeConfig({
+    tableName: 'shipments',
     fields: {
         record_id: {
             type:       MODEL.DATA_TYPE.GUID,
@@ -38,7 +39,7 @@ var config = MODEL.makeConfig({
     },
     relations: {
         record_owner: {
-            type:   MODEL.RELATION_TYPES.ONE_TO_MANY,
+            type:   MODEL.RELATION_TYPES.MANY_TO_ONE,
             model: 'USER',
             query: 'eq(record_owner_id, user.id)',
             constraints: {
@@ -51,7 +52,7 @@ var config = MODEL.makeConfig({
             },
         },
         account: {
-            type:   MODEL.RELATION_TYPES.ONE_TO_MANY,
+            type:   MODEL.RELATION_TYPES.MANY_TO_ONE,
             model:  'ACCOUNT',
             query:  'eq(account_id, account.id)',
             constraints: {
@@ -65,8 +66,10 @@ var config = MODEL.makeConfig({
         },
     },
 });
-export default class SHIPMENT extends MODEL {
+class SHIPMENT extends MODEL {
     static getConfig () {
         return config;
     }
 }
+export { SHIPMENT };
+export default SHIPMENT;
