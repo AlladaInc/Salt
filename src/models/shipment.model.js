@@ -1,4 +1,4 @@
-import { MODEL } from 'model';
+import { MODEL } from 'classes/model';
 
 var config = MODEL.makeConfig({
     tableName: 'shipments',

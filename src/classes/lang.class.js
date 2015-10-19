@@ -1,12 +1,14 @@
-import { sprintf } from 'sprintf-js';
-import { CONFIG } from 'config';
-import { APP } from 'app';
-import * as FILESYSTEM from 'fs';
-import { line_iterator } from 'common-functions';
+import { CONFIG } from 'config/config';
+
+import { util } from 'classes/util';
+import { APP } from 'classes/app';
+import { line_iterator } from 'classes/common-functions';
+
+import FILESYSTEM from 'fs';
 
 class LANG {
     static get (code, ...args) {
-        return sprintf(code, ...args);
+        return util.format(code, ...args);
     }
     static add (code, str) {
         if (typeof this[code] === 'function') {

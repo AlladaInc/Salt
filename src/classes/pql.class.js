@@ -1,7 +1,7 @@
-import { PQL } from '../libs/pql/pql/PQL';
-import { Config } from '../libs/pql/pql/config';
-import { APP } from 'app';
-import { MODEL } from 'model';
+import { PQL } from 'libs/pql/pql/PQL';
+import { Config as PQL_CONFIG } from 'config/pql_config';
+import { APP } from 'classes/app';
+import { MODEL } from 'classes/model';
 
 APP.registerTrigger(APP.EVENTS.MODELS_LOADED, () => {
     let cfg = {};
@@ -38,9 +38,9 @@ APP.registerTrigger(APP.EVENTS.MODELS_LOADED, () => {
             linkFrom: linkFrom,
         };
     });
-    Config.DB_MAP = cfg;
+    PQL_CONFIG.DB_MAP = cfg;
 });
-PQL.defaultConfig = Config;
+PQL.defaultConfig = PQL_CONFIG;
 
 export { PQL };
 export default PQL;

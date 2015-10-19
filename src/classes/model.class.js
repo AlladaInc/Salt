@@ -1,7 +1,7 @@
-import { DATATYPES } from 'datatypes';
-import { PQL } from 'pql';
-import { APP } from 'app';
-import { EVENT } from 'event';
+import { DATATYPES } from 'classes/datatypes';
+//import { PQL } from 'classes/pql';
+import { APP } from 'classes/app';
+import { EVENT } from 'classes/event';
 
 let INDEX_TYPE = Object.freeze({
     HASH:       1,
