@@ -1,4 +1,4 @@
-import { MODEL } from 'classes/model';
+var MODEL = require('./../classes/model');
 
 var config = MODEL.makeConfig({
     tableName: 'shipments',
@@ -71,5 +71,5 @@ class SHIPMENT extends MODEL {
         return config;
     }
 }
-export { SHIPMENT };
-export default SHIPMENT;
+
+module.exports = SHIPMENT;

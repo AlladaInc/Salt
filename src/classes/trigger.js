@@ -7,5 +7,4 @@ class TRIGGER {
     }
 }
 
-export { TRIGGER };
-export default TRIGGER;
+module.exports = TRIGGER;

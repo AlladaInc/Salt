@@ -1,14 +1,14 @@
-import { CONFIG } from 'config/config';
+var CONFIG = require('./../config/config');
 
-import { util } from 'classes/util';
-import { APP } from 'classes/app';
-import { line_iterator } from 'classes/common-functions';
+var APP = require('./app');
+var CF = require('./common-functions');
 
-import FILESYSTEM from 'fs';
+var UTIL = require('util');
+var FILESYSTEM = require( 'fs');
 
 class LANG {
     static get (code, ...args) {
-        return util.format(code, ...args);
+        return UTIL.format(code, ...args);
     }
     static add (code, str) {
         if (typeof this[code] === 'function') {
@@ -20,16 +20,19 @@ class LANG {
 
 APP.registerInitName(__filename);
 
+console.log('Loading Language File...');
+
 FILESYSTEM.readFile(CONFIG.get('lang'), 'utf8', function (err, data) {
     if (err) {
         throw err;
     }
-    for (let line of line_iterator(data)) {
+    for (let line of CF.line_iterator(data)) {
         let match = line.match(/([^\s]+)\s+([^\n\r]+)/);
         LANG.add(match[1], match[2]);
     }
+
+    console.log('Language File Loaded...');
     APP.triggerInitName(__filename);
 });
 
-export { LANG };
-export default LANG;
+module.exports = LANG;

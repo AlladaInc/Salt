@@ -1,7 +1,7 @@
-import { DATATYPES } from 'classes/datatypes';
-//import { PQL } from 'classes/pql';
-import { APP } from 'classes/app';
-import { EVENT } from 'classes/event';
+var DATATYPES = require('./datatypes');
+//var PQL = require('./pql');
+var APP = require('./app');
+var EVENT = require('./event');
 
 let INDEX_TYPE = Object.freeze({
     HASH:       1,
@@ -27,7 +27,7 @@ class MODEL {
     //static set RELATION_TYPES (v) {}
         
     constructor (id, readonly = true) {
-        super (id, readonly);
+        //super (id, readonly);
 
         let return_promise = new Promise((resolve, reject) => {
             let record_promise = this.constructor.getRecord(id, readonly);
@@ -81,5 +81,5 @@ APP.registerEvent('MODELS_LOADED', true, {
         }
     },
 });
-export { MODEL };
-export default MODEL;
+
+module.exports = MODEL;

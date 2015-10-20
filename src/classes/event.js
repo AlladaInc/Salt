@@ -1,11 +1,12 @@
+var TRIGGER = require('./trigger');
+
 class EVENT {
-    constructor (name, {onAddTrigger, onRemoveTrigger, onBeforeRun, onAfterRun} = {}) {
+    constructor (name, config) {
         this.name = name;
-        this.runOnce = runOnce;
-        this.onAddTrigger = onAddTrigger;
-        this.onRemoveTrigger = onRemoveTrigger;
-        this.onBeforeRun = onBeforeRun;
-        this.onAfterRun = onAfterRun;
+        this.onAddTrigger = config.onAddTrigger;
+        this.onRemoveTrigger = config.onRemoveTrigger;
+        this.onBeforeRun = config.onBeforeRun;
+        this.onAfterRun = config.onAfterRun;
 
         this.triggers = new Set();
     }
@@ -40,7 +41,8 @@ class EVENT {
             res = this.onBeforeRun(this, args);
         }
         for (let v of this.triggers) {
-            res = v.run(this, ...args);
+            res = v.run.call(v, [this, ...args]);
+            
             if (res !== undefined) {
                 break;
             }
@@ -52,5 +54,4 @@ class EVENT {
     }
 }
 
-export { EVENT };
-export default EVENT;
+module.exports = EVENT;

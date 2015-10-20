@@ -1,7 +1,7 @@
-import { PQL } from 'libs/pql/pql/PQL';
-import { Config as PQL_CONFIG } from 'config/pql_config';
-import { APP } from 'classes/app';
-import { MODEL } from 'classes/model';
+var PQL = require('./../libs/pql/pql/PQL');
+var PQL_CONFIG = require('./../config/pql_config');
+var APP = require('./app');
+var MODEL = require('./model');
 
 APP.registerTrigger(APP.EVENTS.MODELS_LOADED, () => {
     let cfg = {};
@@ -42,5 +42,4 @@ APP.registerTrigger(APP.EVENTS.MODELS_LOADED, () => {
 });
 PQL.defaultConfig = PQL_CONFIG;
 
-export { PQL };
-export default PQL;
+module.exports = PQL;

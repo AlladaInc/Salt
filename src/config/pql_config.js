@@ -1,4 +1,4 @@
-export class Config {
+class Config {
     static ALL_ARGS (args) {
         return args.join(', ');
     }
@@ -689,3 +689,5 @@ Config.COMPARITORS = new Set([
     NOT_EQUAL,
     NOT_LIKE,
 ]);
+
+module.exports = Config;

@@ -67,8 +67,9 @@ const DATATYPES = {
     MONEY,
 };
 
-export {
+module.exports = {
     DATATYPE_NUMBER,
+
     DATATYPE_STRING,
     DATATYPE_INTEGER,
     DATATYPE_REAL,
@@ -97,6 +98,5 @@ export {
     IMAGE,
     GUID,
     MONEY,
-    DATATYPES
+    DATATYPES,
 };
-export default DATATYPES;
