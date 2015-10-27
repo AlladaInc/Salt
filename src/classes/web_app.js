@@ -1,3 +1,4 @@
+var CONFIG = require('./../config/config');
 var APP = require('./app');
 var LANG = require('./lang');
 
@@ -12,6 +13,8 @@ class WEB_APP extends APP {
         request.on('close', () => {
             this.clientClosed();
         });
+        
+        this.closing = false;
 
         this.currentReq = request;
         this.currentResp = response;
@@ -19,19 +22,36 @@ class WEB_APP extends APP {
         this.ipVersion = this.getIPVersion();
         this.remotePort = this.getRemotePort();
         this.id = this.getGUID();
-        this.log('Got connection, trying to route...');
+        this.currentReq.connection.setNoDelay(true);
+        this.setHeader('Transfer-Encoding', 'chunked');
         this.route();
     }
-    close () {
-        this.log('Connection closed');
-        this.currentResp.end();
-        this.currentResp = null;
-        this.currentReq = null;
-        this.done();
+    done () {
+        this.close();
+    }
+    close (time_limit) {
+        if (this.closing) {
+            return;
+        }
+        this.closing = true;
+        if (time_limit === undefined) {
+            time_limit = 30; // 30 seconds
+        }
+        
+        this.log('Trying to close connection');
+        var close_fn = () => {
+            this.currentResp = null;
+            this.currentReq = null;
+            this.log('Connection closed');
+            this.done();
+        };
+        this.setTimeout(time_limit * 1000, close_fn); 
+        this.currentResp.end(close_fn);
+
     }
     clientClosed () {
         this.log('Client closed connection');
-        this.close();
+        this.close(0);
     }
     getGUID () {
         var hostShaSum = CRYPTO.createHash('sha1');
@@ -85,26 +105,24 @@ class WEB_APP extends APP {
         if (url.substr(0, 1) === '/') {
             url = url.substr(1);
         }
-        var match = url.match(/^([^?]+)(?:\?(.*))?$/);
-        var path, uri;
-        if (!match) {
-            path = '';
-            uri = '';
-        } else {
-            path = match[1];
-            uri = match[2];
-        }
-        path = path.split('/');
-        //uri = 
+        return url;
     }
-    
+    setTimeout (timeout, callback) {
+        return this.currentResp.setTimeout(timeout, callback);
+    }
+    send (data) {
+        return this.currentResp.write(data, 'utf8');
+    }
+    setHeader (name, value) {
+        return this.currentResp.setHeader(name, value);
+    }
     static run (port) {
         this.listenPort = port;
         console.log('App initiating...');
         this.tryInit();
     }
     static initiate () {
-        console.log('App Initiated...');
+        console.log('App Initiated!');
         console.log(`Server setting up port ${ this.listenPort } for listening...`);
         this.SERVER = HTTP.createServer(this.incomingRequest).listen(this.listenPort);
         console.log(`Server listening on port ${ this.listenPort } waiting connections...`);
@@ -113,12 +131,12 @@ class WEB_APP extends APP {
         return new WEB_APP(request, response);
     }
 }
-
 WEB_APP.listenPort = null;
 
 WEB_APP.registerTrigger('APP_INITIATED', () => {
     WEB_APP.initiate();
 });
 
-
 module.exports = WEB_APP;
+
+require(CONFIG.get('web_view_dir') + '/web_app_view');

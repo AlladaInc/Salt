@@ -17,6 +17,7 @@ class LANG {
         this[code] = str || '';
     }
 }
+module.exports = LANG;
 
 APP.registerInitName(__filename);
 
@@ -31,8 +32,6 @@ FILESYSTEM.readFile(CONFIG.get('lang'), 'utf8', function (err, data) {
         LANG.add(match[1], match[2]);
     }
 
-    console.log('Language File Loaded...');
+    console.log('Language File Loaded!');
     APP.triggerInitName(__filename);
 });
-
-module.exports = LANG;

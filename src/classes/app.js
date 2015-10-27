@@ -14,7 +14,9 @@ class APP {
         activeApps.add(this);
     }
     route () {
-        this.controller = ROUTER.route(this, this.getRoutingString());
+        var route_str = this.getRoutingString();
+        this.log('Got connection, trying to route: "' + route_str + '"...');
+        this.controller = ROUTER.route(this, route_str);
     }
     done () {
         activeApps.delete(this);
@@ -38,7 +40,7 @@ class APP {
         return out;
     }
     static internalError (code, ...args) {
-        throw LANG.get.call(LANG, [code, ...args]);
+        throw LANG.get.apply(LANG, [code, ...args]);
     }
     static registerEvent (event_name, ...args) {
         if (this.EVENTS[event_name] === undefined) {

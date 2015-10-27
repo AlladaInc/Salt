@@ -5,3 +5,5 @@ ERROR_FIRST_ARGUMENT_NOT_TRIGGER                                                
 ERROR_ROUTER_ALREADY_DEFINED                                                    Route '%s' already configured
 ERROR_EVENT_NAME_NOT_SET                                                        Event '%s' was not registered
 ERROR_CANNOT_HANDLE_REQUEST_METHOD                                              Request method '%s' was tried; Connection was closed in response
+ERROR_NO_VIEW_FOUND                                                             No view found for view string '%s' for controller '%s'
+ERROR_TYPE_NOT_INSTANCE_OF_DATATYPE                                             'type' is not instanceof DATATYPE' got type: '%s'

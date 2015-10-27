@@ -1,9 +1,13 @@
-var DATATYPES = require('./datatypes');
-//var PQL = require('./pql');
+var CONFIG = require('./../config/config');
+var DATA_TYPES = require('./datatypes');
+var PQL = require('./pql');
 var APP = require('./app');
-var EVENT = require('./event');
+var MODEL_FIELD = require('./model_field');
+var MODEL_RELATION = require('./model_relation');
+var MODEL_INDEX = require('./model_index');
+var CF = require('./../classes/common-functions');
 
-let INDEX_TYPE = Object.freeze({
+let INDEX_TYPES = Object.freeze({
     HASH:       1,
     BTREE:      2,
     RTREE:      3,
@@ -15,18 +19,11 @@ let RELATION_TYPES = Object.freeze({
 });
 
 let models_are_loaded = false;
+let loaded_models = new Map();
 
 class MODEL {
-    static get DATA_TYPES () { return DATATYPES; }
-    //static set DATA_TYPES (v) {}
-
-    static get INDEX_TYPE () { return INDEX_TYPE; }
-    //static set INDEX_TYPE (v) {}
-
-    static get RELATION_TYPES () { return RELATION_TYPES; }
-    //static set RELATION_TYPES (v) {}
-        
-    constructor (id, readonly = true) {
+    constructor (id, readonly) {
+        readonly = (readonly === undefined ? readonly : true);
         //super (id, readonly);
 
         let return_promise = new Promise((resolve, reject) => {
@@ -42,6 +39,37 @@ class MODEL {
     }
     setData (data_obj) {
 
+    }
+    static initModel (config) {
+        this.tableName = config.tableName;
+        this.fields = new Map();
+        this.indexes = new Map();
+        this.relations = new Map();
+
+        var fields = config.fields;
+        for (let field_name in fields) {
+            if (fields.hasOwnProperty(field_name)) {
+                let field = new MODEL_FIELD(this, fields[field_name]);
+                this.fields.set(field_name, field);
+            }
+        }
+
+        var indexes = config.indexes;
+        for (let index_name in indexes) {
+            if (indexes.hasOwnProperty(index_name)) {
+                let index = new MODEL_INDEX(this, indexes[index_name]);
+                this.indexes.set(index_name, index);
+            }
+        }
+
+        var relations = config.relations;
+        for (let relation_name in relations) {
+            if (relations.hasOwnProperty(this, relation_name)) {
+                let relation = new MODEL_RELATION(relations[relation_name]);
+                this.relations.set(relation_name, relation);
+            }
+        }
+        PQL.setupModel(this);
     }
     static getRecord (id, readonly) {
         let return_promise = new Promise((resolve, reject) => {
@@ -62,8 +90,13 @@ class MODEL {
         });
         return return_promise;
     }
-    static query ({query, variables}) {
-        
+    static query (query, variables) {
+        let ret = PQL.getSQL({
+            query: query,
+            table: this.name,
+            variables: variables,
+        });
+        return ret;
     }
     static areModelsLoaded () {
         return models_are_loaded;
@@ -72,14 +105,21 @@ class MODEL {
         models_are_loaded = true;
         APP.triggerEvent(APP.EVENTS.MODELS_LOADED);
     }
+    static getField (field) {
+        return this.fields.get(field);
+    }
 }
-
-APP.registerEvent('MODELS_LOADED', true, {
-    onAddTrigger: () => {
-        if (MODELS.areModelsLoaded) {
-            
-        }
-    },
-});
+MODEL.DATA_TYPES = DATA_TYPES;
+MODEL.INDEX_TYPES = INDEX_TYPES;
+MODEL.RELATION_TYPES = RELATION_TYPES;
 
 module.exports = MODEL;
+
+console.log('Loading Models...');
+APP.registerInitName(__filename);
+CF.walk_dir(CONFIG.get('models_dir'), (file) => {
+    require(file);
+}, () => {
+    console.log('Models Loaded!');
+    APP.triggerInitName(__filename);
+});

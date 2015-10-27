@@ -5,5 +5,8 @@ class CONFIG {
 }
 CONFIG.lang = `${ __dirname }/../../lang/en-US`;
 CONFIG.controller_dir = `${ __dirname }/../controllers`;
+CONFIG.web_view_dir = `${ __dirname }/../views/web`;
+CONFIG.models_dir = `${ __dirname }/../models`;
+CONFIG.pql_dir = `${ __dirname }/../../libs/pql/compiled/pql`;
 
 module.exports = CONFIG;

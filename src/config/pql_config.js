@@ -31,17 +31,18 @@ Config.ARG7          = 6;
 Config.ARG8          = 7;
 Config.DB_MAP        = null;
 
+var APP_CONFIG      = require('./config.js');
 
-import { EQUAL }        from  './opcodes/comparitors/equal.js';
-import { GREATER_THAN } from  './opcodes/comparitors/greater_than.js';
-import { LESS_THAN }    from  './opcodes/comparitors/less_than.js';
-import { LIKE }         from  './opcodes/comparitors/like.js';
-import { NO_VALUE }     from  './opcodes/comparitors/no_value.js';
-import { NOT_EQUAL }    from  './opcodes/comparitors/not_equal.js';
-import { NOT_LIKE }     from  './opcodes/comparitors/not_like.js';
+var EQUAL           = require(APP_CONFIG.get('pql_dir') + '/opcodes/comparitors/equal.js').EQUAL;
+var GREATER_THAN    = require(APP_CONFIG.get('pql_dir') + '/opcodes/comparitors/greater_than.js').GREATER_THAN;
+var LESS_THAN       = require(APP_CONFIG.get('pql_dir') + '/opcodes/comparitors/less_than.js').LESS_THAN;
+var LIKE            = require(APP_CONFIG.get('pql_dir') + '/opcodes/comparitors/like.js').LIKE;
+var NO_VALUE        = require(APP_CONFIG.get('pql_dir') + '/opcodes/comparitors/no_value.js').NO_VALUE;
+var NOT_EQUAL       = require(APP_CONFIG.get('pql_dir') + '/opcodes/comparitors/not_equal.js').NOT_EQUAL;
+var NOT_LIKE        = require(APP_CONFIG.get('pql_dir') + '/opcodes/comparitors/not_like.js').NOT_LIKE;
 
-import { CONSTANTS_ARRAY } from './opcodes/constants_array.js';
-import { NULL } from './opcodes/null.js';
+var CONSTANTS_ARRAY = require(APP_CONFIG.get('pql_dir') + '/opcodes/constants_array.js').CONSTANTS_ARRAY;
+var NULL            = require(APP_CONFIG.get('pql_dir') + '/opcodes/null.js').NULL;
 
 Config.FUNCTION_MAP  = {
     eq: {

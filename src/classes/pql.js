@@ -1,15 +1,13 @@
-var PQL = require('./../libs/pql/pql/PQL');
+var CONFIG = require('./../config/config');
+var PQL = require(CONFIG.get('pql_dir') + '/PQL').PQL;
 var PQL_CONFIG = require('./../config/pql_config');
-var APP = require('./app');
 var MODEL = require('./model');
 
-APP.registerTrigger(APP.EVENTS.MODELS_LOADED, () => {
-    let cfg = {};
-    MODEL.LOADED_MODELS.forEach((v) => {
-        let modelCfg = v.getConfig();
+class S2PQL extends PQL {
+    static setupModel (model) {
         let fields = {};
 
-        modelCfg.fields.forEach((v, k) => {
+        model.fields.forEach((v, k) => {
             fields[k] = {
                 type: v.type.getPQLType(),
             };
@@ -18,7 +16,7 @@ APP.registerTrigger(APP.EVENTS.MODELS_LOADED, () => {
         let linkTo = {};
         let linkFrom = {};
 
-        modelCfg.relations.forEach((v, k) => {
+        model.relations.forEach((v, k) => {
             if (v.type instanceof MODEL.RELATION_TYPES.ONE_TO_MANY) {
                 linkFrom[k] = {
                     table: v.model,
@@ -31,15 +29,16 @@ APP.registerTrigger(APP.EVENTS.MODELS_LOADED, () => {
                 }; 
             }
         });
-        cfg[v.name] = {
-            name: modelCfg.tableName,
+        this.defaultConfig.DB_MAP[model.name] = {
+            name: model.tableName,
             fields: fields,
             linkTo: linkTo,
             linkFrom: linkFrom,
         };
-    });
-    PQL_CONFIG.DB_MAP = cfg;
-});
-PQL.defaultConfig = PQL_CONFIG;
+    }
+}
 
-module.exports = PQL;
+PQL_CONFIG.DB_MAP = {};
+S2PQL.defaultConfig = PQL_CONFIG;
+
+module.exports = S2PQL;

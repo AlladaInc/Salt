@@ -1,24 +1,24 @@
 var MODEL = require('./../classes/model');
 
-var config = MODEL.makeConfig({
+var config = {
     tableName: 'shipments',
     fields: {
         record_id: {
-            type:       MODEL.DATA_TYPE.GUID,
+            type:       MODEL.DATA_TYPES.GUID,
             is_primary: true,
         },
         id: {
-            type:       MODEL.DATA_TYPE.UINT32,
+            type:       MODEL.DATA_TYPES.UINT32,
         },
         'void': {
-            type:       MODEL.DATA_TYPE.UINT64,
+            type:       MODEL.DATA_TYPES.UINT64,
             nullable:   true,
         },
         record_owner_id: {
-            type:       MODEL.DATA_TYPE.UINT32,
+            type:       MODEL.DATA_TYPES.UINT32,
         },
         account_id: {
-            type:       MODEL.DATA_TYPE.UINT32,
+            type:       MODEL.DATA_TYPES.UINT32,
         },
     },
     indexes: {
@@ -27,14 +27,14 @@ var config = MODEL.makeConfig({
                 'record_owner_id',
                 'void',
             ],
-            type: MODEL.INDEX_TYPE.HASH,
+            type: MODEL.INDEX_TYPES.HASH,
         },
         account_id: {
             expressions: [
                 'account_id',
                 'void',
             ],
-            type: MODEL.INDEX_TYPE.HASH,
+            type: MODEL.INDEX_TYPES.HASH,
         },
     },
     relations: {
@@ -65,11 +65,13 @@ var config = MODEL.makeConfig({
             },
         },
     },
-});
+};
 class SHIPMENT extends MODEL {
     static getConfig () {
         return config;
     }
 }
+
+SHIPMENT.initModel(SHIPMENT.getConfig());
 
 module.exports = SHIPMENT;
