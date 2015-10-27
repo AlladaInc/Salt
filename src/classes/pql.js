@@ -4,6 +4,9 @@ var PQL_CONFIG = require('./../config/pql_config');
 var MODEL = require('./model');
 
 class S2PQL extends PQL {
+    static query (...args) {
+        return this.getSQL.apply(this, args);
+    }
     static setupModel (model) {
         let fields = {};
 

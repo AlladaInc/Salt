@@ -7,7 +7,10 @@ class ADD extends CONTROLLER {
         super(app);
 
         this.view = this._getView('shipment/add');
-        this.view.handleVar('result', SHIPMENT.query('id:@id', {id: 5}));
+        this.view.handleVar('result', SHIPMENT.query(app, {
+            query: 'id:@id',
+            variables: {id: 5}
+        }));
         this.done();
     }
 }

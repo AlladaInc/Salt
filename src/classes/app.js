@@ -31,6 +31,24 @@ class APP {
         this.close();
         console.log(LANG.get.apply(LANG, [code, ...args]));
     }
+    getCurrentUserId () {
+        // TODO: setup current user here
+        return null;
+    }
+    getRequestId () {
+        // TODO: set this up
+        return null;
+    }
+    getTransactionId () {
+        // TODO: set this up
+        return null;
+    }
+    getCurrentAppId () {
+        return this.app_num;
+    }
+    getRootAppId () {
+        return this.constructor.rootAppId;
+    }
     
     static getApps () {
         var out = new Set();

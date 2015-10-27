@@ -2,6 +2,7 @@ var CONFIG = require('./../config/config');
 var DATA_TYPES = require('./datatypes');
 var PQL = require('./pql');
 var APP = require('./app');
+var LANG = require('./lang');
 var MODEL_FIELD = require('./model_field');
 var MODEL_RELATION = require('./model_relation');
 var MODEL_INDEX = require('./model_index');
@@ -22,9 +23,9 @@ let models_are_loaded = false;
 let loaded_models = new Map();
 
 class MODEL {
-    constructor (id, readonly) {
+    constructor (app, id, readonly) {
+        this.app = app;
         readonly = (readonly === undefined ? readonly : true);
-        //super (id, readonly);
 
         let return_promise = new Promise((resolve, reject) => {
             let record_promise = this.constructor.getRecord(id, readonly);
@@ -46,12 +47,29 @@ class MODEL {
         this.indexes = new Map();
         this.relations = new Map();
 
+        this.primary_fields = new Set();
+
         var fields = config.fields;
         for (let field_name in fields) {
             if (fields.hasOwnProperty(field_name)) {
-                let field = new MODEL_FIELD(this, fields[field_name]);
+                let field = new MODEL_FIELD(this, field_name, fields[field_name]);
+                if (field.is_primary) {
+                    this.primary_fields.add(field);
+                }
                 this.fields.set(field_name, field);
             }
+        }
+        
+        if (this.primary_fields.size === 0) {
+            APP.internalError(LANG.ERROR_PRIMARY_FIELD_REQUIRED, this.name);
+        }
+
+        if (this.defaultGroupBy === undefined) {
+            let defGroups = [];
+            this.primary_fields.forEach((field) => {
+                defGroups.push(field.fieldName);
+            });
+            this.defaultGroupBy = defGroups.join(',');
         }
 
         var indexes = config.indexes;
@@ -69,46 +87,59 @@ class MODEL {
                 this.relations.set(relation_name, relation);
             }
         }
+
+        if (this.defaultOrderBy === undefined) {
+            this.defaultOrderBy = null;
+        }
+
         PQL.setupModel(this);
     }
-    static getRecord (id, readonly) {
-        let return_promise = new Promise((resolve, reject) => {
-            if (readonly) { }
-            let query_promise = this.query({
-                query: 'id:@id',
-                variables: {
-                    id: id,
-                },
-            });
-            query_promise.then((db_data) => {
-                // This will be a simple object with the queried fields
-                resolve(db_data);
-                query_promise.cleanup();
-            }).catch((reason) => {
-                reject(reason);
-            });
-        });
-        return return_promise;
+    static getRecord (app, id, readonly) {
+
     }
-    static query (query, variables) {
-        let ret = PQL.getSQL({
-            query: query,
-            table: this.name,
-            variables: variables,
+    static query (app, query_obj) {
+        let query       = query_obj.query       || '';
+        let group       = query_obj.group       || this.defaultGroupBy;
+        let orderBy     = query_obj.orderBy     || this.defaultOrderBy;
+        let selects     = this.buildSelects(app, query_obj.selects);
+        let variables   = this.buildVariables(app, query_obj.variables);
+
+        let ret = PQL.query({
+            table:      this.name,
+            query:      query,
+            group:      group,
+            orderBy:    orderBy,
+            selects:    selects,
+            variables:  variables,
         });
         return ret;
     }
-    static areModelsLoaded () {
-        return models_are_loaded;
+    static buildSelects (app, selects) {
+        selects = selects || {};
+        return selects;
     }
-    static triggerModelsLoaded () {
-        models_are_loaded = true;
-        APP.triggerEvent(APP.EVENTS.MODELS_LOADED);
+    static buildVariables (app, variables) {
+        variables = variables || {};
+
+        variables.now = new Date();
+        variables.today = new Date(variables.now.getFullYear(), variables.now.getMonth(), variables.now.getDate());
+
+        variables.current_user_id = app.getCurrentUserId();
+        variables.root_user_id = CONFIG.root_user_id;
+
+        variables.request_id = app.getRequestId();
+        variables.transaction_id = app.getTransactionId();
+        
+        variables.current_app_id = app.getCurrentAppId();
+        variables.root_app_id = app.getRootAppId();
+
+        return variables;
     }
-    static getField (field) {
+    static getField (app, field) {
         return this.fields.get(field);
     }
 }
+
 MODEL.DATA_TYPES = DATA_TYPES;
 MODEL.INDEX_TYPES = INDEX_TYPES;
 MODEL.RELATION_TYPES = RELATION_TYPES;
