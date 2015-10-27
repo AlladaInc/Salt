@@ -1,3 +1,6 @@
 [submodule "libs/pql"]
 	path = libs/pql
 	url = https://github.com/AlladaInc/PseudoQL.git
+[submodule "libs/oracleDB"]
+	path = libs/oracleDB
+	url = https://github.com/oracle/node-oracledb.git
