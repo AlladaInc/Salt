@@ -15,6 +15,7 @@ class WEB_APP extends APP {
         });
         
         this.closing = false;
+        this.timers = new Set();
 
         this.currentReq = request;
         this.currentResp = response;
@@ -29,29 +30,43 @@ class WEB_APP extends APP {
     done () {
         this.close();
     }
-    close (time_limit) {
-        if (this.closing) {
-            return;
-        }
+    forceClose () {
         this.closing = true;
-        if (time_limit === undefined) {
-            time_limit = 30; // 30 seconds
+        this.currentResp.end();
+        this.currentResp = null;
+        this.currentReq.socket.destroy();
+        this.currentReq = null;
+        this.log('App instance closed!');
+        this.closed();
+    }
+    close (time_limit) {
+        var was_closing = super.close(time_limit);
+        if (was_closing) {
+            return was_closing;
         }
-        
-        this.log('Trying to close connection');
-        var close_fn = () => {
-            this.currentResp = null;
-            this.currentReq = null;
-            this.log('Connection closed');
-            this.done();
+        this.log('Trying to close app instance...');
+        if (time_limit !== undefined) {
+            this.setTimeout(() => {
+                this.log('App instance forced closed due to timeout');
+                this.forceClose();
+            }, time_limit * 1000);
+        }
+        var waitFn = () => {
+            if (this.canClose()) {
+                this.currentResp.end(() => {
+                    this.forceClose();
+                });
+            } else {
+                this.setTimeout(() => {
+                    waitFn();
+                }, 100);
+            }
         };
-        this.setTimeout(time_limit * 1000, close_fn); 
-        this.currentResp.end(close_fn);
-
+        waitFn();
     }
     clientClosed () {
         this.log('Client closed connection');
-        this.close(0);
+        this.close();
     }
     getGUID () {
         var hostShaSum = CRYPTO.createHash('sha1');
@@ -107,9 +122,6 @@ class WEB_APP extends APP {
         }
         return url;
     }
-    setTimeout (timeout, callback) {
-        return this.currentResp.setTimeout(timeout, callback);
-    }
     send (data) {
         return this.currentResp.write(data, 'utf8');
     }
@@ -124,19 +136,42 @@ class WEB_APP extends APP {
     static initiate () {
         console.log('App Initiated!');
         console.log(`Server setting up port ${ this.listenPort } for listening...`);
-        this.SERVER = HTTP.createServer(this.incomingRequest).listen(this.listenPort);
+        this.SERVER = HTTP.createServer((...args) => {
+            this.incomingRequest(...args);
+        }).listen(this.listenPort);
         console.log(`Server listening on port ${ this.listenPort } waiting connections...`);
     }
+    static terminate () {
+        return new Promise((success) => {
+            console.log('Trying to stop listening service...');
+            this.SERVER.close(() => {
+                console.log('Service no longer listening!');
+                success();
+            });
+
+            super.terminate();
+        });
+    }
     static incomingRequest (request, response) {
+        if (this.isExiting()) {
+            request.socket.destroy();
+            response.socket.destroy();
+            console.log('Got request, but dropping because app is closing');
+            // do nothing as it's exiting
+            return;
+        }
         return new WEB_APP(request, response);
     }
 }
-WEB_APP.listenPort = null;
-
-WEB_APP.registerTrigger('APP_INITIATED', () => {
-    WEB_APP.initiate();
-});
 
 module.exports = WEB_APP;
+
+APP.registerApp(WEB_APP);
+
+WEB_APP.listenPort = null;
+
+WEB_APP.on('appInitiated', () => {
+    WEB_APP.initiate();
+});
 
 require(CONFIG.get('web_view_dir') + '/web_app_view');

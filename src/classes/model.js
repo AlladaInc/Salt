@@ -97,12 +97,25 @@ class MODEL {
     static getRecord (app, id, readonly) {
 
     }
-    static query (app, query_obj) {
+    static initalize () {
+
+    }
+    static query (app, query_obj, readonly) {
+        if (readonly === undefined) {
+            readonly = true;
+        } else {
+            readonly = false;
+        }
+        if (query_obj === undefined || query_obj === null) {
+            query_obj = {};
+        }
         let query       = query_obj.query       || '';
         let group       = query_obj.group       || this.defaultGroupBy;
         let orderBy     = query_obj.orderBy     || this.defaultOrderBy;
         let selects     = this.buildSelects(app, query_obj.selects);
         let variables   = this.buildVariables(app, query_obj.variables);
+        let limit       = query_obj.limit       || 100;
+        let offset      = query_obj.offset      || 0;
 
         let ret = PQL.query({
             table:      this.name,
@@ -111,7 +124,9 @@ class MODEL {
             orderBy:    orderBy,
             selects:    selects,
             variables:  variables,
-        });
+            limit:      limit,
+            offset:     offset,
+        }, readonly);
         return ret;
     }
     static buildSelects (app, selects) {

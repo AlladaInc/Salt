@@ -2,6 +2,7 @@ var CONFIG = require('./../config/config');
 var PQL = require(CONFIG.get('pql_dir') + '/PQL').PQL;
 var PQL_CONFIG = require('./../config/pql_config');
 var MODEL = require('./model');
+var DATABASE = require('./relational_database');
 
 class S2PQL extends PQL {
     static query (...args) {
