@@ -101,6 +101,9 @@ class MODEL {
 
     }
     static query (app, query_obj, readonly) {
+        return PQL.query(app.getRelationalDB(), query_obj);
+    }
+    static buildQuery (app, query_obj, readonly) {
         if (readonly === undefined) {
             readonly = true;
         } else {
@@ -166,6 +169,7 @@ APP.registerInitName(__filename);
 CF.walk_dir(CONFIG.get('models_dir'), (file) => {
     require(file);
 }, () => {
+    APP.emit('modelsLoaded');
     console.log('Models Loaded!');
     APP.triggerInitName(__filename);
 });

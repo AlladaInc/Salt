@@ -74,7 +74,6 @@ class SHIPMENT extends MODEL {
         return config;
     }
 }
+module.exports = SHIPMENT;
 
 SHIPMENT.initModel(SHIPMENT.getConfig());
-
-module.exports = SHIPMENT;

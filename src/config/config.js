@@ -18,7 +18,7 @@ CONFIG.root_user_id = 1;
 CONFIG.relational_database = {
     user: 'salt2',
     password: 'test',
-    connect_string: '172.16.84.99/orcl',
+    connect_string: '172.16.84.101/orcl',
 };
 
 module.exports = CONFIG;

@@ -1,12 +1,12 @@
 var CONFIG = require('./../config/config');
-var PQL = require(CONFIG.get('pql_dir') + '/PQL').PQL;
-var PQL_CONFIG = require('./../config/pql_config');
 var MODEL = require('./model');
-var DATABASE = require('./relational_database');
+var PQL_CONFIG = require('./../config/pql_config');
+var PQL = require(CONFIG.get('pql_dir') + '/PQL').PQL;
 
 class S2PQL extends PQL {
-    static query (...args) {
-        return this.getSQL.apply(this, args);
+    static query (database, ...args) {
+        var query = this.getSQL.apply(this, args);
+        return database.query(query);
     }
     static setupModel (model) {
         let fields = {};
@@ -41,8 +41,7 @@ class S2PQL extends PQL {
         };
     }
 }
+module.exports = S2PQL;
 
 PQL_CONFIG.DB_MAP = {};
 S2PQL.defaultConfig = PQL_CONFIG;
-
-module.exports = S2PQL;

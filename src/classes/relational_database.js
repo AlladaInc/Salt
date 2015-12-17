@@ -1,9 +1,10 @@
 var ORACLEDB = require('oracledb');
 var EVENTEMITTER = require('events').EventEmitter;
 var CONFIG = require('./../config/config');
-
 var SYS_APP = require('./sys_app');
-var SYSTEMUSERGROUP = require('./../models/systemusergroup');
+var APP = require('./app');
+var SYSUSERGROUP; // see below
+var RELATIONAL_DATABASE_RESULT = require('./relational_database_result');
 
 var DB_APP = new SYS_APP();
 
@@ -32,6 +33,25 @@ class DATABASE extends EVENTEMITTER {
         this.setApp(app);
 
         this.constructor.emit('constructed', app);
+    }
+    query (sql) {
+        return new Promise((resolve, reject) => {
+            var promise = this.execute(sql);
+            promise.then((result) => {
+                resolve(new RELATIONAL_DATABASE_RESULT(this.getApp(), result));
+            }, err);
+        });
+    }
+    execute (sql) {
+        return new Promise((resolve, reject) => {
+            connection.execute(sql, [], (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
     }
     setApp (app) {
         if (this._app) {
@@ -116,7 +136,8 @@ class DATABASE extends EVENTEMITTER {
             console.log('Creating user db pools');
 
             // Setup a pool for every sys user in the database.
-            var groups_promise = SYSTEMUSERGROUP.query(DB_APP);
+            var groups_promise = SYSUSERGROUP.query(DB_APP, {});
+            console.log('ererasefasdf');
             groups_promise.then((resultObj) => {
                 let userGroups = 0;
                 for (let promise of resultObj) {
@@ -151,7 +172,7 @@ class DATABASE extends EVENTEMITTER {
     static factory (app, user) {
         return new Promise((successFn, errorFn) => {
             var userGroup = user.get('sysusergroup');
-            let pool
+            let pool;
             if (!userGroup || !SYSUSERGROUP_POOLS.has(userGroup.get('id'))) {
                 errorFn(LANG.ERROR_USER_POOL_NOT_EXIST, userGroup.get('id'));
                 return;
@@ -189,4 +210,7 @@ DATABASE.DB_APP = DB_APP;
     }
 })();
 
-DATABASE.initiate();
+APP.on('modelsLoaded', function () {
+    SYSUSERGROUP = require('./../models/sysusergroup');
+    DATABASE.initiate();
+});

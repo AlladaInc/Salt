@@ -9,8 +9,8 @@ RUN apt-get update \
   && apt-get install -y unzip \
   && apt-get install -y curl \
   && apt-get install -y python \
-  && apt-get install -y git
-#  && rm -rf /var/lib/apt/lists/*
+  && apt-get install -y git \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /opt/oracle
 RUN unzip /instantclient-basic-linux.x64-12.1.0.2.0.zip -d /opt/oracle

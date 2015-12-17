@@ -2,6 +2,7 @@ var PROCESS = require('process');
 var EVENTEMITTER = require('events').EventEmitter;
 var ROUTER; // = require('./router'); // SEE BELOW
 var LANG; // = require('./lang'); // SEE BELOW
+var RELATIONAL_DATABASE; // = require('./relational_database'); // SEE BELOW
 
 var activeApps = new Set();
 var sysApps = new Set();
@@ -25,6 +26,8 @@ class APP extends EVENTEMITTER {
         this._locks = new Set();
         this.app_num = app_incrementer++;
         this.req_time = new Date();
+        this.dbConnection = null; // set below
+
         if (this.isSysApp()) {
             sysApps.add(this);
         } else {
@@ -99,6 +102,16 @@ class APP extends EVENTEMITTER {
     getRootAppId () {
         return this.constructor.rootAppId;
     }
+    getRelationalDB () {
+        if (!this.dbConnection) {
+            this.dbConnection = RELATIONAL_DATABASE.factory(this, this.getUser());
+        }
+    }
+    getUser () {
+        return {
+            
+        };
+    }
     setTimeout (callback, delay) {
         if (this.currentResp) {
             let timer = setTimeout(() => {
@@ -148,6 +161,7 @@ class APP extends EVENTEMITTER {
     }
     static triggerInitName (name) {
         INIT_EVENTS.delete(name);
+        this.emit('initNameTriggered', name);
         this.tryInit();
     }
     static tryInit () {
@@ -236,3 +250,5 @@ class APP extends EVENTEMITTER {
 })();
 
 module.exports = APP;
+
+RELATIONAL_DATABASE = require('./relational_database');
