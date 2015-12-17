@@ -1,3 +1,4 @@
+var ORACLEDB = require('oracledb');
 var EVENTEMITTER = require('events').EventEmitter;
 var CONFIG = require('./../config/config');
 var SYS_APP = require('./sys_app');
